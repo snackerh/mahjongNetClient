@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/darkBackground"
+    android:layout_height="match_parent"
+    tools:context="snacker.mahjongNetClient.Board">
+
+    <Button
+        android:id="@+id/riichi"
+        android:layout_width="100dp"
+        android:layout_height="67dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="리치"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.029"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/tsumo"
+        android:layout_width="108dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="20dp"
+        android:text="쓰모"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/riichi"
+        app:layout_constraintStart_toEndOf="@+id/riichi"
+        app:layout_constraintTop_toTopOf="@+id/riichi"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/ron"
+        android:layout_width="108dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="론"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/riichi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tsumo"
+        app:layout_constraintTop_toTopOf="@+id/riichi" />
+
+    <TextView
+        android:id="@+id/middle"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/lightBackground"
+        android:fontFamily="sans-serif-smallcaps"
+        android:gravity="center"
+        android:text=" 동1국\n1본장\n공탁:n000"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textIsSelectable="false"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/tsumo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/upperScore"
+        android:layout_width="126dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="8dp"
+        android:rotation="90"
+        android:text="30000"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/ron"
+        app:layout_constraintEnd_toStartOf="@+id/middle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.506" />
+
+    <TextView
+        android:id="@+id/lowerScore"
+        android:layout_width="126dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:rotation="-90"
+        android:text="30000"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/ron"
+        app:layout_constraintStart_toEndOf="@+id/middle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.506" />
+
+    <TextView
+        android:id="@+id/faceScore"
+        android:layout_width="126dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="84dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:rotation="180"
+        android:text="30000"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/faceLight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/myScore"
+        android:layout_width="126dp"
+        android:layout_height="43dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="92dp"
+        android:text="30000"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/middle" />
+
+    <TextView
+        android:id="@+id/myLight"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/middle"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/middle"
+        app:layout_constraintTop_toBottomOf="@+id/middle" />
+
+    <TextView
+        android:id="@+id/faceLight"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/middle"
+        app:layout_constraintEnd_toEndOf="@+id/middle"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/middle" />
+
+    <TextView
+        android:id="@+id/lowerLight"
+        android:layout_width="14dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/middle"
+        app:layout_constraintStart_toEndOf="@+id/middle"
+        app:layout_constraintTop_toTopOf="@+id/middle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/upperLight"
+        android:layout_width="14dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/middle"
+        app:layout_constraintEnd_toStartOf="@+id/middle"
+        app:layout_constraintTop_toTopOf="@+id/middle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/myWind"
+        android:layout_width="50sp"
+        android:layout_height="56sp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:text="동"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toBottomOf="@+id/myScore"
+        app:layout_constraintEnd_toStartOf="@+id/myScore"
+        app:layout_constraintTop_toTopOf="@+id/myScore" />
+
+    <TextView
+        android:id="@+id/faceWind"
+        android:layout_width="50sp"
+        android:layout_height="56sp"
+        android:layout_marginStart="4dp"
+        android:rotation="180"
+        android:text="서"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toBottomOf="@+id/faceScore"
+        app:layout_constraintStart_toEndOf="@+id/faceScore"
+        app:layout_constraintTop_toTopOf="@+id/faceScore"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/upperWind"
+        android:layout_width="56sp"
+        android:layout_height="50sp"
+        android:layout_marginBottom="44dp"
+        android:layout_marginStart="8dp"
+        android:rotation="90"
+        android:text="북"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toTopOf="@+id/upperScore"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/lowerWind"
+        android:layout_width="56sp"
+        android:layout_height="50sp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="40dp"
+        android:rotation="-90"
+        android:text="남"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lowerScore" />
+
+    <ImageView
+        android:id="@+id/compare"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/compare"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>
