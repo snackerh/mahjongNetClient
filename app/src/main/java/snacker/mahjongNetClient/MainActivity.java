@@ -66,8 +66,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(b.getText().equals("연결")) {
                     ID = t.getText().toString();
-                    ConnectSocket cntThread = new ConnectSocket();
-                    cntThread.start();
+                    DisconnectSocket disThread = new DisconnectSocket();
+                    disThread.start(); // clean first
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ConnectSocket cntThread = new ConnectSocket();
+                            cntThread.start();
+                        }
+                    }, 500);
                     mHandler.postDelayed(new Runnable(){
                         public void run(){
                             wait = new WaitThread();
@@ -101,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 socket = new Socket(addr, port);
                 out = new PrintWriter(socket.getOutputStream());
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                isConnecting = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -115,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 in.close();
                 isConnecting = false;
                 mHandler.post(changeText);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -133,7 +141,10 @@ public class MainActivity extends AppCompatActivity {
                     split = msg.split(">");
 
                     if(split[0].equals("Server")){
-                        if(split[1].equals("Refused")){
+                        if(split[1].equals("kick")){
+                            break;
+                        }
+                        else if(split[1].equals("Refused")){
                             alertCode = 0;
                             mHandler.post(serverAlert);
                             break;
@@ -160,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-            } catch (IOException e){
+            } catch (Exception e){
                 e.printStackTrace();
             }
         }

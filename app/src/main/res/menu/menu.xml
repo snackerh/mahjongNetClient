@@ -13,4 +13,16 @@
         android:title="유국"
         android:icon="@drawable/next"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/revertOnce"
+        android:title="바로 전으로" />
+    <item
+        android:id="@+id/revertMiddle"
+        android:title="이번 국 처음으로" />
+    <item
+        android:id="@+id/revertFar"
+        android:title="이전 국 처음으로" />
+    <item
+        android:id="@+id/recovery"
+        android:title="상태 복구" />
 </menu>

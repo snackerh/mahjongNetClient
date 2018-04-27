@@ -19,9 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ConnectPopup" />
-        <activity android:name=".Board" />
-        <activity android:name=".scoreDialog"></activity>
+        <activity android:name=".ConnectPopup"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Board"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".scoreDialog"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
