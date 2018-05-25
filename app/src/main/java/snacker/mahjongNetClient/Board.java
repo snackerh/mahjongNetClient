@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -80,13 +81,20 @@ public class Board extends AppCompatActivity {
     int waitdraws = 0;
     int tenpais = 0;
 
-    int winnerWind;
-    int loserWind;
-    int pan;
-    int boo;
+    int winnerWind = -1;
+    int loserWind = -1;
+    int pan = -1;
+    int boo = -1;
+    // 더블론 전용
+    int doublewinner = -1;
+    int doublepan = -1;
+    int doubleboo = -1;
 
     int jackpot; // 자 계산
     int oyajackpot; // 친 계산
+
+    int maxround = 8;
+    int maxroundmod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +102,11 @@ public class Board extends AppCompatActivity {
         setContentView(R.layout.activity_board);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //TODO: 친이 튕겼다가 재접속했을시 대국이 초기화되는 현상 수정
+
         mHandler = new Handler();
 
+        maxroundmod = (maxround + 3) / 4 * 4 + 1; // modified
             ConnectSocket connect = new ConnectSocket();
             connect.start();
 
@@ -177,6 +188,7 @@ public class Board extends AppCompatActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        // TODO: 이부분을 고쳐서 대국에 복귀할시에 상황이 초기화되지않도록 할것
                         SendStatus send = new SendStatus(1);
                         send.start();
                     }
@@ -199,7 +211,7 @@ public class Board extends AppCompatActivity {
                 if(!waitingDraw) {
                     AlertDialog.Builder bld = new AlertDialog.Builder(this);
                     bld.setTitle("확인");
-                    bld.setMessage("유국을 선택하셨습니다.\n당신은 텐파이입니까?");
+                    bld.setMessage("유국을 선택하셨습니다.\n당신은 텐파이입니까?\n(도중유국일 경우 전부 '네'를 선택하십시오.)");
                     bld.setNegativeButton("네", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichbutton) {
                             isRiichi[intentWind] = true;
@@ -271,7 +283,7 @@ public class Board extends AppCompatActivity {
                     bld.setMessage("현재 상대편으로부터 텐파이 여부를 입력받고 있습니다.\n잠시만 기다려 주십시오.");
                     bld.show();
                 } else{
-                    Toast.makeText(Board.this, "해당 기능은 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Board.this, "해당 기능은 첫 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.revertMiddle:
@@ -294,7 +306,7 @@ public class Board extends AppCompatActivity {
                     bld.setMessage("현재 상대편으로부터 텐파이 여부를 입력받고 있습니다.\n잠시만 기다려 주십시오.");
                     bld.show();
                 } else{
-                    Toast.makeText(Board.this, "해당 기능은 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Board.this, "해당 기능은 첫 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.revertFar:
@@ -317,7 +329,7 @@ public class Board extends AppCompatActivity {
                     bld.setMessage("현재 상대편으로부터 텐파이 여부를 입력받고 있습니다.\n잠시만 기다려 주십시오.");
                     bld.show();
                 } else{
-                    Toast.makeText(Board.this, "해당 기능은 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Board.this, "해당 기능은 첫 친에게 문의하십시오.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.recovery:
@@ -388,6 +400,7 @@ public class Board extends AppCompatActivity {
                 upperScore.setText("" + scores[(intentWind + 3) % 4]);
                 break;
             case 1:
+                myScore.setText("" + scores[intentWind]);
                 lowerScore.setText("" + (scores[intentWind] - scores[(intentWind + 1) % 4]));
                 if((scores[intentWind] - scores[(intentWind + 1) % 4]) < 0) lowerScore.setTextColor(Color.RED);
                 else if((scores[intentWind] - scores[(intentWind + 1) % 4]) > 0) lowerScore.setTextColor(Color.GREEN);
@@ -414,12 +427,12 @@ public class Board extends AppCompatActivity {
                 upperScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 3) % 4, round, extend, vault));
                 myScore.setText(calc.findLeastTsumo(scores, intentWind, round, extend, vault));
         }
-        myWind.setText(MainActivity.winds[(intentWind + 9 - round) % 4]); //각자의 바람
-        lowerWind.setText(MainActivity.winds[(intentWind + 10 - round) % 4]);
-        faceWind.setText(MainActivity.winds[(intentWind + 11 - round) % 4]);
-        upperWind.setText(MainActivity.winds[(intentWind + 12 - round) % 4]);
+        myWind.setText(MainActivity.winds[(intentWind + maxroundmod - round) % 4]); //각자의 바람
+        lowerWind.setText(MainActivity.winds[(intentWind + maxroundmod + 1 - round) % 4]);
+        faceWind.setText(MainActivity.winds[(intentWind + maxroundmod + 2 - round) % 4]);
+        upperWind.setText(MainActivity.winds[(intentWind + maxroundmod + 3 - round) % 4]);
 
-        statusBoard.setText((round <= 4 ? "동 " : "남 ") + ((round % 4) == 0 ? 4 : (round % 4)) + "국\n" + extend + (oyaextend ? "연장" : "본장") + "\n공탁:" + vault); // 중앙판
+        statusBoard.setText((round <= 4 ? "동 " : round <= 8  ? "남 " : "서 ") + ((round % 4) == 0 ? 4 : (round % 4)) + "국\n" + extend + (oyaextend ? "연장" : "본장") + "\n공탁:" + vault); // 중앙판
         if(oyaextend) statusBoard.setBackgroundResource(R.color.colorAccent);
         else statusBoard.setBackgroundResource(R.color.lightBackground);
 
@@ -453,7 +466,7 @@ public class Board extends AppCompatActivity {
         }
         mHandler.postDelayed(updateChange, 2000);
 
-        switch((intentWind + 9 - round) % 4){ //오야가 누구야
+        switch((intentWind + maxroundmod - round) % 4){ //오야가 누구야
             case 0:
                 myWind.setBackgroundColor(Color.RED);
                 upperWind.setBackgroundColor(Color.TRANSPARENT);
@@ -499,7 +512,11 @@ public class Board extends AppCompatActivity {
             else upperLight.setBackgroundColor(Color.TRANSPARENT);
 
 
-            if (round == 9 || (round == 8 && isTop(scores)) || isTobi(scores)) {
+            if (round == (maxround + 1) || (round == maxround && isTop(scores) && extend >= 1) || isTobi(scores)) {
+                if(vault != 0){
+                    scores[findTop(scores)] += vault;
+                    vault = 0;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -561,6 +578,14 @@ public class Board extends AppCompatActivity {
         return true;
     }
 
+    public int findTop(int[] arr){
+        int top = 0;
+        for(int i = 1; i < 4; i++){
+            if(arr[i] > arr[top]) top = i;
+        }
+        return top;
+    }
+
     public void recover(String[] st){
         round = Integer.parseInt(st[0]);
         extend = Integer.parseInt(st[1]);
@@ -580,14 +605,23 @@ public class Board extends AppCompatActivity {
     }
 
     public boolean stillOyaExtend(){
-        if(extend == 1 || (extend  >= 2 && oyaextend == true)) return true;
-        else return false;
+        return extend == 1 || (extend >= 2 && oyaextend);
     }
 
     /* 쓰모, 론, 유국 시 계산 */
+    //TODO: 모든 작업 완료 후 제대로 승자변수 초기화시키기
+    public void resetWind(){
+        winnerWind = -1;
+        loserWind = -1;
+        doublewinner = -1;
+        pan = -1;
+        boo = -1;
+        doublepan = -1;
+        doubleboo = -1;
+    }
 
     public void tsumoFunc(int winner){ //winner = 자신 기준 상대하가
-        if(((winner + intentWind + 13 - round) % 4) == 0){ // 친이 쯔모
+        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 친이 쯔모
             oyajackpot = calc.oyaTsumo(pan, boo);
             scores[((winner + intentWind) % 4)] += ((3 * oyajackpot) + (300 * extend) + vault);
             change[((winner + intentWind) % 4)] = ((3 * oyajackpot) + (300 * extend) + vault);
@@ -610,7 +644,7 @@ public class Board extends AppCompatActivity {
             Log.d("boo", "" + boo);
             Log.d("oyajackpot", ""+ oyajackpot);
             Log.d("jackpot", ""+ jackpot);
-            if(((winner + intentWind + 13 - round) % 4) == 1){ // 남가 쯔모
+            if(((winner + intentWind + maxroundmod - round) % 4) == 1){ // 남가 쯔모
                 scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 scores[((winner + intentWind + 1) % 4)] -= jackpot + (100 * extend); //서가
@@ -620,7 +654,7 @@ public class Board extends AppCompatActivity {
                 scores[((winner + intentWind + 3) % 4)] -= oyajackpot + (100 * extend); //오야
                 change[((winner + intentWind + 3) % 4)] = -(oyajackpot + (100 * extend));
             }
-            if(((winner + intentWind + 13 - round) % 4) == 2){ // 서가 쯔모
+            if(((winner + intentWind + maxroundmod - round) % 4) == 2){ // 서가 쯔모
                 scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 scores[((winner + intentWind + 1) % 4)] -= jackpot + (100 * extend); //북가
@@ -630,7 +664,7 @@ public class Board extends AppCompatActivity {
                 scores[((winner + intentWind + 3) % 4)] -= jackpot + (100 * extend); //남가
                 change[((winner + intentWind + 3) % 4)] = -(jackpot + (100 * extend));
             }
-            if(((winner + intentWind + 13 - round) % 4) == 3){ // 북가 쯔모
+            if(((winner + intentWind + maxroundmod - round) % 4) == 3){ // 북가 쯔모
                 scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
                 scores[((winner + intentWind + 1) % 4)] -= oyajackpot + (100 * extend); //오야
@@ -660,7 +694,7 @@ public class Board extends AppCompatActivity {
     }
 
     public void ronFunc(int winner, int loser){
-        if(((winner + intentWind + 13 - round) % 4) == 0){ // 친이 론
+        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 친이 론
             oyajackpot = calc.oyaRon(pan, boo);
             scores[(winner + intentWind) % 4] += (oyajackpot + (300 * extend) + vault);
             change[(winner + intentWind) % 4] = (oyajackpot + (300 * extend) + vault);
@@ -685,6 +719,76 @@ public class Board extends AppCompatActivity {
             jackpot = 0;
             Arrays.fill(isRiichi,false);
         }
+        if(intentWind == 0) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    SendStatus send = new SendStatus(1);
+                    send.start();
+                }
+            });
+        }
+    }
+
+    public void doubleronFunc(int winner, int secondwinner, int loser){
+        boolean didOya = false;
+        change[(loser + intentWind) % 4] = 0;
+        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 첫번째, 친이 론
+            oyajackpot = calc.oyaRon(pan, boo);
+            scores[(winner + intentWind) % 4] += (oyajackpot + (300 * extend));
+            change[(winner + intentWind) % 4] = (oyajackpot + (300 * extend));
+            scores[(loser + intentWind) % 4] -= oyajackpot + (300 * extend);
+            change[(loser + intentWind) % 4] -= (oyajackpot + (300 * extend));
+            didOya = true;
+        }
+        else{
+            jackpot = calc.childRon(pan, boo);
+            scores[(winner + intentWind) % 4] += (jackpot + (300 * extend));
+            change[(winner + intentWind) % 4] = (jackpot + (300 * extend));
+            scores[(loser + intentWind) % 4] -= jackpot + (300 * extend);
+            change[(loser + intentWind) % 4] -= (jackpot + (300 * extend));
+        }
+
+        if(((secondwinner + intentWind + maxroundmod - round) % 4) == 0){ // 두번째, 친이 론
+            oyajackpot = calc.oyaRon(doublepan, doubleboo);
+            scores[(secondwinner + intentWind) % 4] += (oyajackpot + (300 * extend));
+            change[(secondwinner + intentWind) % 4] = (oyajackpot + (300 * extend));
+            scores[(loser + intentWind) % 4] -= oyajackpot + (300 * extend);
+            change[(loser + intentWind) % 4] -= (oyajackpot + (300 * extend));
+            didOya = true;
+        }
+        else{
+            jackpot = calc.childRon(doublepan, doubleboo);
+            scores[(secondwinner + intentWind) % 4] += (jackpot + (300 * extend));
+            change[(secondwinner + intentWind) % 4] = (jackpot + (300 * extend));
+            scores[(loser + intentWind) % 4] -= jackpot + (300 * extend);
+            change[(loser + intentWind) % 4] -= (jackpot + (300 * extend));
+        }
+
+        //누가 공탁금을 가져가지?
+        if(((winner + 4 - loser) % 4) < ((secondwinner + 4 - loser) % 4)){ //방총자기준 선하네
+            scores[(winner + intentWind) % 4] += vault;
+            change[(winner + intentWind) % 4] += vault;
+        }
+        else{
+            scores[(secondwinner + intentWind) % 4] += vault;
+            change[(secondwinner + intentWind) % 4] += vault;
+        }
+        vault = 0;
+
+        if(didOya){
+            extend++;
+            oyaextend = stillOyaExtend();
+            oyajackpot = 0;
+            Arrays.fill(isRiichi,false);
+        } else {
+            round++;
+            extend = 0;
+            oyaextend = false;
+            jackpot = 0;
+            Arrays.fill(isRiichi,false);
+        }
+
         if(intentWind == 0) {
             mHandler.post(new Runnable() {
                 @Override
@@ -764,7 +868,7 @@ public class Board extends AppCompatActivity {
     }
 
     public void chonboFunc(int player){ // 자신 기준 위치
-        if((player + intentWind + 9 - round) % 4 == 0){
+        if((player + intentWind + maxroundmod - round) % 4 == 0){
             scores[(player + intentWind) % 4] -= 12000;
             change[(player + intentWind) % 4] = -12000;
             for(int i = 1; i < 4; i++) {
@@ -776,7 +880,7 @@ public class Board extends AppCompatActivity {
             scores[(player + intentWind) % 4] -= 8000;
             change[(player + intentWind) % 4] = -8000;
             for(int i = 1; i < 4; i++) {
-                if((player + intentWind + i + 9 - round) % 4 == 0) {
+                if((player + intentWind + i + maxroundmod - round) % 4 == 0) {
                     scores[(player + intentWind + i) % 4] += 4000;
                     change[(player + intentWind + i) % 4] = 4000;
                 }
@@ -829,40 +933,6 @@ public class Board extends AppCompatActivity {
         }
     };
 
-    View.OnTouchListener mTouch = new View.OnTouchListener(){
-        @Override
-        public boolean onTouch(View v, MotionEvent action){
-            switch(action.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    lowerScore.setText("" + (scores[intentWind] - scores[(intentWind + 1) % 4]));
-                    if((scores[intentWind] - scores[(intentWind + 1) % 4]) < 0) lowerScore.setTextColor(Color.RED);
-                    else if((scores[intentWind] - scores[(intentWind + 1) % 4]) > 0) lowerScore.setTextColor(Color.GREEN);
-                    faceScore.setText(""+ (scores[intentWind] - scores[(intentWind + 2) % 4]));
-                    if((scores[intentWind] - scores[(intentWind + 2) % 4]) < 0) faceScore.setTextColor(Color.RED);
-                    else if((scores[intentWind] - scores[(intentWind + 2) % 4]) > 0) faceScore.setTextColor(Color.GREEN);
-                    upperScore.setText(""+ (scores[intentWind] - scores[(intentWind + 3) % 4]));
-                    if((scores[intentWind] - scores[(intentWind + 3) % 4]) < 0) upperScore.setTextColor(Color.RED);
-                    else if((scores[intentWind] - scores[(intentWind + 3) % 4]) > 0) upperScore.setTextColor(Color.GREEN);
-                    break;
-                case MotionEvent.ACTION_UP:
-                    lowerScore.setTextColor(Color.WHITE);
-                    faceScore.setTextColor(Color.WHITE);
-                    upperScore.setTextColor(Color.WHITE);
-                    lowerScore.setTextSize(18);
-                    faceScore.setTextSize(18);
-                    upperScore.setTextSize(18);
-                    myScore.setTextSize(18);
-                    lowerScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 1) % 4, round, extend, vault));
-                    faceScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 2) % 4, round, extend, vault));
-                    upperScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 3) % 4, round, extend, vault));
-                    myScore.setText(calc.findLeastTsumo(scores, intentWind, round, extend, vault));
-                    mHandler.postDelayed(updateBoard, 2000);
-                    break;
-            }
-            return false;
-        }
-    };
-
     Button.OnClickListener mClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -874,11 +944,14 @@ public class Board extends AppCompatActivity {
                     break;
                 case R.id.ron:
                     if(!ronPressed) {
-                        winnerWind = 0;
+                        if(winnerWind == -1) winnerWind = 0;
+                        else doublewinner = 0;
                         ronPressed = true;
                         updateBoardFunc();
                     }
                     else{
+                        if(doublewinner != -1) doublewinner = -1;
+                        else winnerWind = -1;
                         ronPressed = false;
                         updateBoardFunc();
                     }
@@ -916,7 +989,12 @@ public class Board extends AppCompatActivity {
                 +"서(" + IDs[2] + "): " + (scores[2] - 30000) + "\n"
                 + "북(" + IDs[3] + "): " + (scores[3] - 30000));
         bld.show();
+        SendStatus send = new SendStatus(5);
+        send.start();
     }
+
+    //TODO: 더블론 기능 추가하기
+    //TODO: 서버쪽도 관련 기능 업데이트하기
 
     public void showDialog(){
         final String[] panarr = {"1판","2판","3판","4판","만관","하네만","배만","삼배만","역만","더블역만","트리플역만","쿼드러플역만"};
@@ -926,8 +1004,9 @@ public class Board extends AppCompatActivity {
         final Dialog call = new Dialog(this);
 
         call.setContentView(dialoglayout);
-        final NumberPicker panPicker = (NumberPicker) call.findViewById(R.id.panPicker);
-        final NumberPicker booPicker = (NumberPicker) call.findViewById(R.id.booPicker);
+        final NumberPicker panPicker = call.findViewById(R.id.panPicker);
+        final NumberPicker booPicker = call.findViewById(R.id.booPicker);
+        final CheckBox doubldchk = call.findViewById(R.id.doublecheck);
         Button ok = call.findViewById(R.id.dialogOk);
         Button cancel = call.findViewById(R.id.dialogCancel);
 
@@ -941,8 +1020,14 @@ public class Board extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pan = panPicker.getValue();
-                boo = booPicker.getValue();
+                if(pan == -1) {
+                    pan = panPicker.getValue();
+                    boo = booPicker.getValue();
+                }
+                else{
+                    doublepan = panPicker.getValue();
+                    doubleboo = booPicker.getValue();
+                }
 
                 if(winnerWind == loserWind){
                     mHandler.post(new Runnable() {
@@ -955,15 +1040,40 @@ public class Board extends AppCompatActivity {
                     tsumoFunc(winnerWind);
 
                 }
-                else{
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            SendRon s = new SendRon();
-                            s.start();
+                else {
+                    if (doubldchk.isChecked()) {
+                        if (winnerWind == -1 || winnerWind == 0){
+                            winnerWind = 0;
                         }
-                    });
-                    ronFunc(winnerWind, loserWind);
+                        else{
+                            doublewinner = 0;
+                            doubleronFunc(winnerWind, doublewinner, loserWind);
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    resetWind();
+                                }
+                            }, 1000);
+                        }
+                        mHandler.post(new Runnable(){
+                            @Override
+                            public void run() {
+                                SendDoubleRon s = new SendDoubleRon();
+                                s.start();
+                            }
+                        });
+
+                    } else {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                SendRon s = new SendRon();
+                                s.start();
+                            }
+                        });
+                        ronFunc(winnerWind, loserWind);
+                    }
+
                 }
 
                 call.dismiss();
@@ -1001,6 +1111,8 @@ public class Board extends AppCompatActivity {
                     Arrays.fill(change,0);
                     split = msg.split(">");
                     if(split[0].equals("Server")){
+                        // TODO: 서버쪽 코드를 수정해서 접속시 상황에 맞게 현재 상황을 보내줄것
+                        // TODO: 만약 새로 대국을 시작해야 할 경우 서버에서 새로운 데이터를 보내줄것
                         if(split[1].equals("prev") || split[1].equals("middle") || split[1].equals("near") || split[1].equals("curr")){ //revert or recover
                             String[] recoverStatus = split[2].split("::");
                             recover(recoverStatus);
@@ -1010,132 +1122,72 @@ public class Board extends AppCompatActivity {
                         continue;
                     }
                     int who = findID(IDs, split[0]);
-                    switch((who - intentWind + 4) % 4){
+                    int whofromme = (who - intentWind + 4) % 4;
+                    switch(whofromme){ //내 기준
                         case 0:
                             Log.d("match", MainActivity.ID);
                             mHandler.post(updateBoard);
-                            continue;
-                        case 1: // 하가
-                            if(split[1].equals("riichi")){
-                                scores[(intentWind + 1) % 4] -= 1000;
-                                change[(intentWind + 1) % 4] = -1000;
-                                isRiichi[(intentWind + 1) % 4] = true;
-                                vault += 1000;
-                                if(intentWind == 0) {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            SendStatus send = new SendStatus(0);
-                                            send.start();
-                                        }
-                                    });
-                                }
-                            }
-                            else if(split[1].equals("tsumo")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                tsumoFunc(1);
-                            }
-                            else if(split[1].equals("ron")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                loserWind = Integer.parseInt(split[4]);
-                                ronFunc(1,(loserWind + 1) % 4);
-                            }
-                            else if(split[1].equals("Tenpai")){
-                                isRiichi[(intentWind + 1) % 4] = true;
-                                waitdraws++;
-                                tenpais++;
-                            }
-                            else if(split[1].equals("noTenpai")){
-                                isRiichi[(intentWind + 1) % 4] = false;
-                                waitdraws++;
-                            }
-                            else if(split[1].equals("chonbo")){
-                                chonboFunc(1);
+                            break;
+                        case 1: case 2: case 3: //순서대로 하가대가상가
+                            switch (split[1]) {
+                                case "riichi":
+                                    scores[(intentWind + whofromme) % 4] -= 1000;
+                                    change[(intentWind + whofromme) % 4] = -1000;
+                                    isRiichi[(intentWind + whofromme) % 4] = true;
+                                    vault += 1000;
+                                    if (intentWind == 0) {
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                SendStatus send = new SendStatus(0);
+                                                send.start();
+                                            }
+                                        });
+                                    }
+                                    resetWind();
+                                    break;
+                                case "tsumo":
+                                    pan = Integer.parseInt(split[2]);
+                                    boo = Integer.parseInt(split[3]);
+                                    tsumoFunc(whofromme);
+                                    resetWind();
+                                    break;
+                                case "ron":
+                                    pan = Integer.parseInt(split[2]);
+                                    boo = Integer.parseInt(split[3]);
+                                    loserWind = Integer.parseInt(split[4]);
+                                    ronFunc(whofromme, (loserWind + whofromme) % 4);
+                                    resetWind();
+                                    break;
+                                case "doubleron":
+                                    if (loserWind == -1) loserWind = (whofromme + Integer.parseInt(split[4])) % 4;
+                                    if (winnerWind == -1) {
+                                        winnerWind = whofromme;
+                                        pan = Integer.parseInt(split[2]);
+                                        boo = Integer.parseInt(split[3]);
+                                    } else {
+                                        doublewinner = whofromme;
+                                        doublepan = Integer.parseInt(split[2]);
+                                        doubleboo = Integer.parseInt(split[3]);
+                                        doubleronFunc(winnerWind, doublewinner, loserWind);
+                                        resetWind();
+                                    }
+                                    break;
+                                case "Tenpai":
+                                    isRiichi[(intentWind + whofromme) % 4] = true;
+                                    waitdraws++;
+                                    tenpais++;
+                                    break;
+                                case "noTenpai":
+                                    isRiichi[(intentWind + whofromme) % 4] = false;
+                                    waitdraws++;
+                                    break;
+                                case "chonbo":
+                                    chonboFunc(whofromme);
+                                    resetWind();
+                                    break;
                             }
                             break;
-                        case 2: // 대가
-                            if(split[1].equals("riichi")){
-                                scores[(intentWind + 2) % 4] -= 1000;
-                                change[(intentWind + 2) % 4] = -1000;
-                                isRiichi[(intentWind + 2) % 4] = true;
-                                vault += 1000;
-                                if(intentWind == 0) {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            SendStatus send = new SendStatus(0);
-                                            send.start();
-                                        }
-                                    });
-                                }
-                            }
-                            else if(split[1].equals("tsumo")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                tsumoFunc(2);
-                            }
-                            else if(split[1].equals("ron")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                loserWind = Integer.parseInt(split[4]);
-                                ronFunc(2,(loserWind + 2) % 4);
-                            }
-                            else if(split[1].equals("Tenpai")){
-                                isRiichi[(intentWind + 2) % 4] = true;
-                                waitdraws++;
-                                tenpais++;
-                            }
-                            else if(split[1].equals("noTenpai")){
-                                isRiichi[(intentWind + 2) % 4] = false;
-                                waitdraws++;
-                            }
-                            else if(split[1].equals("chonbo")){
-                                chonboFunc(2);
-                            }
-                            break;
-                        case 3: // 상가
-                            if(split[1].equals("riichi")){
-                                scores[(intentWind + 3) % 4] -= 1000;
-                                change[(intentWind + 3) % 4] = -1000;
-                                isRiichi[(intentWind + 3) % 4] = true;
-                                vault += 1000;
-                                if(intentWind == 0) {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            SendStatus send = new SendStatus(0);
-                                            send.start();
-                                        }
-                                    });
-                                }
-                            }
-                            else if(split[1].equals("tsumo")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                tsumoFunc(3);
-                            }
-                            else if(split[1].equals("ron")){
-                                pan = Integer.parseInt(split[2]);
-                                boo = Integer.parseInt(split[3]);
-                                loserWind = Integer.parseInt(split[4]);
-                                ronFunc(3,(loserWind + 3) % 4);
-                            }
-                            else if(split[1].equals("Tenpai")){
-                                isRiichi[(intentWind + 3) % 4] = true;
-                                waitdraws++;
-                                tenpais++;
-                            }
-                            else if(split[1].equals("noTenpai")){
-                                isRiichi[(intentWind + 3) % 4] = false;
-                                waitdraws++;
-                            }
-                            else if(split[1].equals("chonbo")){
-                                chonboFunc(3);
-                            }
-                            break;
-                            //본인은 상관하지 않아도 됨
                     }
 
                     if(waitdraws == 4){
@@ -1181,6 +1233,7 @@ public class Board extends AppCompatActivity {
             try{
                 out.println("tsumo>" + pan + ">" + boo);
                 out.flush();
+                resetWind();
             } catch(Exception e){
                 e.printStackTrace();
             }
@@ -1192,18 +1245,32 @@ public class Board extends AppCompatActivity {
             try{
                 out.println("ron>" + pan + ">" + boo + ">" + loserWind);
                 out.flush();
+                resetWind();
             } catch(Exception e){
                 e.printStackTrace();
             }
         }
     }
+
+    public class SendDoubleRon extends Thread{
+        @Override
+        public void run(){
+            try{
+                out.println("doubleron>" + pan + ">" + boo + ">" + loserWind);
+                out.flush();
+                //resetWind();
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     public class SendDraw extends Thread{
         @Override
         public void run(){
             try{
                 if(!isRiichi[intentWind]) out.println("noTenpai");
                 else out.println("Tenpai");
-
                 out.flush();
             } catch (Exception e){
                 e.printStackTrace();
@@ -1216,6 +1283,7 @@ public class Board extends AppCompatActivity {
             try{
                 out.println("chonbo");
                 out.flush();
+                resetWind();
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -1235,11 +1303,11 @@ public class Board extends AppCompatActivity {
     }
 
     public class SendStatus extends Thread{
-        int code = 0;
+        int code;
 
         SendStatus(int c){
                 code = c;
-        };
+        }
 
         @Override
         public void run(){
@@ -1256,12 +1324,14 @@ public class Board extends AppCompatActivity {
                     case 2: // revert far
                         out.println("prev");
                         break;
-                    case 3:
+                    case 3: //revert near
                         out.println("near");
                         break;
-                    case 4:
+                    case 4: //revert to start of the round
                         out.println("middle");
                         break;
+                    case 5: //대국종료 확인
+                        out.println("end195727" + status + "::end");
                 }
                 out.flush();
             } catch (Exception e){

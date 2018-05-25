@@ -120,10 +120,10 @@ public class Calculate {
         int calc;
 
         System.arraycopy(score,0, tempscore, 0, 4);
-        if(max == me) return "화료시 1위";
+        if(max == me) return "이미 1위";
         if((round - 1) % 4 == me) { //내가 친이면?
                 for(pan = 0; pan < 4; pan++) {
-                    for (boo = 0; boo < 9; boo++) {
+                    for (boo = 0; boo < 7; boo++) {
                         calc = oyaRon(pan, boo); //오야론으로 쏴야징
                         tempscore[target] -= (calc + extend * 300);
                         tempscore[me] += (calc + extend * 300 + vault);
@@ -158,7 +158,7 @@ public class Calculate {
         }
         else{ //내가 자면?
                 for(pan = 0; pan < 4; pan++) {
-                    for (boo = 0; boo < 9; boo++) {
+                    for (boo = 0; boo < 7; boo++) {
                         calc = childRon(pan, boo); //오야론으로 쏴야징
                         if(calc > 8000) calc = 8000;
                         tempscore[target] -= (calc + extend * 300);
@@ -206,7 +206,7 @@ public class Calculate {
         if(max == me) return "화료시 1위";
         if((round - 1) % 4 == me) { //내가 친이면?
             for(pan = 0; pan < 4; pan++) {
-                for (boo = 0; boo < 8; boo++) {
+                for (boo = 0; boo < 7; boo++) {
                     calc = oyaTsumo(pan, boo); //오야가 츠모
                     for(int i = 0; i < 4; i++){
                         if(i == me) tempscore[i] += (calc * 3 + extend * 300 + vault);
@@ -250,7 +250,7 @@ public class Calculate {
         else{ //내가 자면?
             int oyacalc;
             for(pan = 0; pan < 4; pan++) {
-                for (boo = 0; boo < 8; boo++) {
+                for (boo = 0; boo < 7; boo++) {
                     calc = childTsumo(pan, boo); //친이 쓰모했다
                     oyacalc = oyaTsumo(pan, boo);
                     for(int i = 0; i < 4; i++){
@@ -297,6 +297,6 @@ public class Calculate {
                 }
             }
         }
-        return "수정";
+        return "수정:버그";
     }
 }

@@ -11,7 +11,6 @@
     <item
         android:id="@+id/draw"
         android:title="유국"
-        android:icon="@drawable/next"
         app:showAsAction="always" />
     <item
         android:id="@+id/revertOnce"

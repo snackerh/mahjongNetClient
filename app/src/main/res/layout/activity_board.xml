@@ -48,6 +48,7 @@
 
     <TextView
         android:id="@+id/upperCompare"
+        android:text="@string/loading"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -63,6 +64,7 @@
 
     <TextView
     android:id="@+id/lowerCompare"
+        android:text="@string/loading"
     android:layout_width="100dp"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -79,6 +81,7 @@
 
     <TextView
     android:id="@+id/faceCompare"
+        android:text="@string/loading"
     android:layout_width="100dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="8dp"
@@ -95,6 +98,7 @@
 
     <TextView
         android:id="@+id/meCompare"
+        android:text="@string/loading"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

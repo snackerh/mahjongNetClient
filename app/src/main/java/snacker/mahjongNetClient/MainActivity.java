@@ -1,6 +1,7 @@
 package snacker.mahjongNetClient;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,9 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -54,6 +58,16 @@ public class MainActivity extends AppCompatActivity {
         nb = findViewById(R.id.positionPicker);
         status = findViewById(R.id.statusText);
 
+        try {
+            FileInputStream fis = openFileInput("id.txt");
+            byte[] id = new byte[fis.available()];
+            while (fis.read(id) != -1){;}
+            fis.close();
+            t.setText(new String(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mHandler = new Handler();
 
         nb.setMinValue(0);
@@ -66,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(b.getText().equals("연결")) {
                     ID = t.getText().toString();
+                    try {
+                        FileOutputStream fos = openFileOutput("id.txt", Context.MODE_PRIVATE);
+                        fos.write(ID.getBytes());
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     DisconnectSocket disThread = new DisconnectSocket();
                     disThread.start(); // clean first
                     mHandler.postDelayed(new Runnable() {
@@ -74,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                             ConnectSocket cntThread = new ConnectSocket();
                             cntThread.start();
                         }
-                    }, 500);
+                    }, 300);
                     mHandler.postDelayed(new Runnable(){
                         public void run(){
                             wait = new WaitThread();
@@ -82,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                             wait.start();
                             send.start();
                         }
-                    }, 1000);
+                    }, 500);
                     t.setEnabled(false);
                     t.setFocusable(false);
                     mHandler.post(changeButton);
@@ -118,9 +139,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                socket.close();
                 out.close();
                 in.close();
+                socket.close();
                 isConnecting = false;
                 mHandler.post(changeText);
             } catch (Exception e) {
@@ -210,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
             else if(connection != 0) {
                 status.setText("Waiting connection...(" + connection + "/4)");
                 if(connection == 4){
+                        b.setText("연결");
+
                         Intent intent = new Intent(MainActivity.this, Board.class);
                         intent.putExtra("myWind", nb.getValue());
                         startActivity(intent);
@@ -226,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     bld.setTitle("Connection refused");
                     bld.setMessage("Server is full.");
+                    break;
                 case 1:
                     bld.setTitle("Connection refused");
                     bld.setMessage(winds[nb.getValue()] + " is already taken.");

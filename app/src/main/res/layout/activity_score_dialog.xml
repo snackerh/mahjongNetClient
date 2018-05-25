@@ -11,7 +11,7 @@
         android:layout_width="168dp"
         android:layout_height="134dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="52dp"
         android:theme="@style/NumberPicker"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,10 +32,11 @@
         android:id="@+id/dialogOk"
         android:layout_width="167dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
-        android:textSize="24dp"
+        android:layout_marginTop="16dp"
         android:text="확인"
+        android:textSize="24dp"
         app:layout_constraintEnd_toEndOf="@+id/panPicker"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/panPicker"
         app:layout_constraintTop_toBottomOf="@+id/panPicker" />
 
@@ -43,11 +44,23 @@
         android:id="@+id/dialogCancel"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:textSize="24dp"
         android:text="취소"
+        android:textSize="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/dialogOk"
         app:layout_constraintEnd_toEndOf="@+id/booPicker"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/booPicker"
-        app:layout_constraintTop_toBottomOf="@+id/booPicker" />
+        app:layout_constraintTop_toTopOf="@+id/dialogOk"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <CheckBox
+        android:id="@+id/doublecheck"
+        android:layout_width="167dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical|center"
+        android:text="더블론"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/panPicker"
+        app:layout_constraintStart_toStartOf="@+id/panPicker" />
 </android.support.constraint.ConstraintLayout>
