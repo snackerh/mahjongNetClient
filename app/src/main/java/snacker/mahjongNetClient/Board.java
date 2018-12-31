@@ -155,7 +155,7 @@ public class Board extends AppCompatActivity {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SendStatus send = new SendStatus(0);
+                                        SendStatus send = new SendStatus(6);
                                         send.start();
                                     }
                                 });
@@ -521,7 +521,6 @@ public class Board extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            out.flush();
                             socket.close();
                             in.close();
                             out.close();
@@ -1208,7 +1207,7 @@ public class Board extends AppCompatActivity {
         public void run() {
             try {
                 socket = MainActivity.getSocket();
-                out = new PrintWriter(socket.getOutputStream());
+                out = new PrintWriter(socket.getOutputStream(),true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1221,7 +1220,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("riichi");
-                out.flush();
             } catch(Exception e){
                 e.printStackTrace();
             }
@@ -1232,7 +1230,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("tsumo>" + pan + ">" + boo);
-                out.flush();
                 resetWind();
             } catch(Exception e){
                 e.printStackTrace();
@@ -1244,7 +1241,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("ron>" + pan + ">" + boo + ">" + loserWind);
-                out.flush();
                 resetWind();
             } catch(Exception e){
                 e.printStackTrace();
@@ -1257,7 +1253,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("doubleron>" + pan + ">" + boo + ">" + loserWind);
-                out.flush();
                 //resetWind();
             } catch(Exception e){
                 e.printStackTrace();
@@ -1271,7 +1266,6 @@ public class Board extends AppCompatActivity {
             try{
                 if(!isRiichi[intentWind]) out.println("noTenpai");
                 else out.println("Tenpai");
-                out.flush();
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -1282,7 +1276,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("chonbo");
-                out.flush();
                 resetWind();
             } catch (Exception e){
                 e.printStackTrace();
@@ -1295,7 +1288,6 @@ public class Board extends AppCompatActivity {
         public void run(){
             try{
                 out.println("recover");
-                out.flush();
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -1332,8 +1324,11 @@ public class Board extends AppCompatActivity {
                         break;
                     case 5: //대국종료 확인
                         out.println("end####" + status + "::end");
+                        break;
+                    case 6:
+                        out.println("start####" + status + "::new");
+                        break;
                 }
-                out.flush();
             } catch (Exception e){
                 e.printStackTrace();
             }

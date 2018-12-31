@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             try {
                 socket = new Socket(ipt.getText().toString(), port);
-                out = new PrintWriter(socket.getOutputStream());
+                out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 isConnecting = true;
             } catch (IOException e) {
@@ -224,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 String msg;
                 out.println("pos####" + nb.getValue());
                 out.println("ID####" + ID);
-                out.flush();
             } catch(Exception e){
                 e.printStackTrace();
             }
