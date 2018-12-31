@@ -46,18 +46,29 @@
         app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:id="@+id/IPinput"
+        android:layout_width="216dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="200dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/statusText"
         android:layout_width="213dp"
         android:layout_height="81dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="256dp"
+        android:layout_marginEnd="8dp"
         android:text="Waiting to connect..."
         android:textAlignment="center"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintHorizontal_bias="0.561"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/IDinput" />
 
@@ -68,6 +79,20 @@
         android:layout_marginTop="32dp"
         android:gravity="center"
         android:text="위치:"
+        android:textAlignment="center"
+        android:textSize="21dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="63dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="140dp"
+        android:gravity="center"
+        android:text="IP:"
         android:textAlignment="center"
         android:textSize="21dp"
         app:layout_constraintEnd_toEndOf="@+id/textView"
@@ -88,15 +113,5 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/IDinput"
         app:layout_constraintTop_toBottomOf="@+id/IDinput" />
-
-    <ListView
-        android:layout_width="368dp"
-        android:layout_height="239dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

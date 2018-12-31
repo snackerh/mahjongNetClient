@@ -24,8 +24,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
-
-    String addr = "210.99.167.73";
+    
     int port = 9502;
 
     public static String winds[] = {"동", "남", "서", "북"};
@@ -34,9 +33,11 @@ public class MainActivity extends AppCompatActivity {
     int connection;
     boolean isConnecting = false;
     public static String ID;
+    public static String IP;
 
     Button b;
     EditText t;
+    EditText ipt;
     TextView status;
     NumberPicker nb;
     Handler mHandler;
@@ -55,15 +56,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         b = findViewById(R.id.cnt);
         t = findViewById(R.id.IDinput);
+        ipt = findViewById(R.id.IPinput);
         nb = findViewById(R.id.positionPicker);
         status = findViewById(R.id.statusText);
 
         try {
             FileInputStream fis = openFileInput("id.txt");
+            FileInputStream ip = openFileInput("ip");
             byte[] id = new byte[fis.available()];
+            byte[] id2 = new byte[ip.available()];
             while (fis.read(id) != -1){;}
             fis.close();
             t.setText(new String(id));
+            while (ip.read(id2) != -1){;}
+            ip.close();
+            ipt.setText(new String(id2));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,10 +87,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(b.getText().equals("연결")) {
                     ID = t.getText().toString();
+                    IP = ipt.getText().toString();
                     try {
                         FileOutputStream fos = openFileOutput("id.txt", Context.MODE_PRIVATE);
                         fos.write(ID.getBytes());
                         fos.close();
+                        FileOutputStream ipfos = openFileOutput("ip.txt", Context.MODE_PRIVATE);
+                        ipfos.write(IP.getBytes());
+                        ipfos.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -122,11 +133,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     public class ConnectSocket extends Thread{
         @Override
         public void run() {
             try {
-                socket = new Socket(addr, port);
+                socket = new Socket(ipt.getText().toString(), port);
                 out = new PrintWriter(socket.getOutputStream());
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 isConnecting = true;
