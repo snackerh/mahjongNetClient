@@ -24,8 +24,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
-    
+
     int port = 9502;
+
+    public final String TAG = "MahjongNetClient";
 
     public static String winds[] = {"동", "남", "서", "북"};
     public static String IDs[] = {"","","",""};
@@ -62,12 +64,12 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             FileInputStream fis = openFileInput("id.txt");
-            FileInputStream ip = openFileInput("ip");
             byte[] id = new byte[fis.available()];
-            byte[] id2 = new byte[ip.available()];
             while (fis.read(id) != -1){;}
             fis.close();
             t.setText(new String(id));
+            FileInputStream ip = openFileInput("ip");
+            byte[] id2 = new byte[ip.available()];
             while (ip.read(id2) != -1){;}
             ip.close();
             ipt.setText(new String(id2));
@@ -88,11 +90,12 @@ public class MainActivity extends AppCompatActivity {
                 if(b.getText().equals("연결")) {
                     ID = t.getText().toString();
                     IP = ipt.getText().toString();
+                    Log.d(TAG, ID + ", " + IP);
                     try {
                         FileOutputStream fos = openFileOutput("id.txt", Context.MODE_PRIVATE);
                         fos.write(ID.getBytes());
                         fos.close();
-                        FileOutputStream ipfos = openFileOutput("ip.txt", Context.MODE_PRIVATE);
+                        FileOutputStream ipfos = openFileOutput("ip", Context.MODE_PRIVATE);
                         ipfos.write(IP.getBytes());
                         ipfos.close();
                     } catch (Exception e) {
@@ -170,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
                 while(true){
                     msg = in.readLine();
-                    Log.d("Main", msg);
+                    Log.d(TAG, msg);
                     split = msg.split(">");
 
                     if(split[0].equals("Server")){
@@ -182,17 +185,22 @@ public class MainActivity extends AppCompatActivity {
                             mHandler.post(serverAlert);
                             break;
                         }
-                        else if(split[1].equals("Taken")){
+                        else if(split[1].equals("posTaken")){
                             alertCode = 1;
+                            mHandler.post(serverAlert);
+                            break;
+                        }
+                        else if(split[1].equals("idTaken")){
+                            alertCode = 2;
                             mHandler.post(serverAlert);
                             break;
                         }
                         else{
                             IDs = split[1].split("#%");
-                            Log.d("0",IDs[0]);
-                            Log.d("1",IDs[1]);
-                            Log.d("2",IDs[2]);
-                            Log.d("3",IDs[3]);
+                            Log.d(TAG,IDs[0]);
+                            Log.d(TAG,IDs[1]);
+                            Log.d(TAG,IDs[2]);
+                            Log.d(TAG,IDs[3]);
                         }
                     }
                     else if(msg.equals("0") ||msg.equals("1") || msg.equals("2") || msg.equals("3") || msg.equals("4")){
@@ -214,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
         public void run(){
             try{
                 String msg;
-                out.println("pos195727" + nb.getValue());
-                out.println("ID195727" + ID);
+                out.println("pos####" + nb.getValue());
+                out.println("ID####" + ID);
                 out.flush();
             } catch(Exception e){
                 e.printStackTrace();
@@ -265,6 +273,9 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     bld.setTitle("Connection refused");
                     bld.setMessage(winds[nb.getValue()] + " is already taken.");
+                case 2:
+                    bld.setTitle("Connection refused");
+                    bld.setMessage(ID + " already exists.");
             }
             b.setText("연결");
             bld.show();

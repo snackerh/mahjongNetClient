@@ -1316,10 +1316,10 @@ public class Board extends AppCompatActivity {
                         isRiichi[0] + "::" + isRiichi[1] + "::" + isRiichi[2] + "::" + isRiichi[3] + "::" + vault;
                 switch(code){
                     case 0: // 현재 상태 저장
-                        out.println("curr195727" + status + "::nonew");
+                        out.println("curr####" + status + "::nonew");
                         break;
                     case 1: // 국 초기 상태 저장
-                        out.println("new195727" + status + "::new");
+                        out.println("new####" + status + "::new");
                         break;
                     case 2: // revert far
                         out.println("prev");
@@ -1331,7 +1331,7 @@ public class Board extends AppCompatActivity {
                         out.println("middle");
                         break;
                     case 5: //대국종료 확인
-                        out.println("end195727" + status + "::end");
+                        out.println("end####" + status + "::end");
                 }
                 out.flush();
             } catch (Exception e){
