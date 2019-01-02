@@ -155,7 +155,7 @@ public class Board extends AppCompatActivity {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SendStatus send = new SendStatus(6);
+                                        SendStatus send = new SendStatus(0);
                                         send.start();
                                     }
                                 });
@@ -189,7 +189,7 @@ public class Board extends AppCompatActivity {
                     @Override
                     public void run() {
                         // TODO: 이부분을 고쳐서 대국에 복귀할시에 상황이 초기화되지않도록 할것
-                        SendStatus send = new SendStatus(1);
+                        SendStatus send = new SendStatus(6);
                         send.start();
                     }
                 });
