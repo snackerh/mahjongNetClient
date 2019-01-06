@@ -272,9 +272,11 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     bld.setTitle("Connection refused");
                     bld.setMessage(winds[nb.getValue()] + " is already taken.");
+                    break;
                 case 2:
                     bld.setTitle("Connection refused");
                     bld.setMessage(ID + " already exists.");
+                    break;
             }
             b.setText("연결");
             bld.show();

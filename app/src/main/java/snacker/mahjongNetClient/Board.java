@@ -108,22 +108,22 @@ public class Board extends AppCompatActivity {
 
         Intent intent = getIntent();
         myWindval = intent.getIntExtra("myWind", 0);
-
+        windText = new TextView[4];
         windText[myWindval] = findViewById(R.id.myWind);
         windText[(myWindval + 1) % 4] = findViewById(R.id.lowerWind);
         windText[(myWindval + 2) % 4] = findViewById(R.id.faceWind);
         windText[(myWindval + 3) % 4] = findViewById(R.id.upperWind);
-
+        riichiText = new TextView[4];
         riichiText[myWindval] = findViewById(R.id.myLight);
         riichiText[(myWindval + 1) % 4] = findViewById(R.id.lowerLight);
         riichiText[(myWindval + 2) % 4] = findViewById(R.id.faceLight);
         riichiText[(myWindval + 3) % 4] = findViewById(R.id.upperLight);
-
+        scoreText = new TextView[4];
         scoreText[myWindval] = findViewById(R.id.myScore);
         scoreText[(myWindval + 1) % 4] = findViewById(R.id.lowerScore);
         scoreText[(myWindval + 2) % 4]= findViewById(R.id.faceScore);
         scoreText[(myWindval + 3) % 4] = findViewById(R.id.upperScore);
-
+        changeText = new TextView[4];
         changeText[myWindval] = findViewById(R.id.meCompare);
         changeText[(myWindval + 1) % 4] = findViewById(R.id.lowerCompare);
         changeText[(myWindval + 2) % 4] = findViewById(R.id.faceCompare);
@@ -379,7 +379,7 @@ public class Board extends AppCompatActivity {
             case 0:
                 for(int i = 0; i < 4; i++){
                     scoreText[i].setTextSize(36);
-                    scoreText[i].setText("" + scores[myWindval]);
+                    scoreText[i].setText("" + scores[i]);
                 }
                 break;
             case 1:
@@ -423,7 +423,7 @@ public class Board extends AppCompatActivity {
         mHandler.postDelayed(updateChange, 2000);
 
         for(int i = 0; i < 4; i++) { //오야 찾기
-            if(i == (round % 4)) windText[i].setBackgroundColor(Color.RED);
+            if(i == ((round - 1) % 4)) windText[i].setBackgroundColor(Color.RED);
             else windText[i].setBackgroundColor(Color.TRANSPARENT);
         }
 
@@ -814,14 +814,14 @@ public class Board extends AppCompatActivity {
         public void onClick(View view) {
             switch(view.getId()){
                 case R.id.tsumo:
-                    winnerWind = 0;
-                    loserWind = 0;
+                    winnerWind = myWindval;
+                    loserWind = myWindval;
                     showDialog();
                     break;
                 case R.id.ron:
                     if(!ronPressed) {
-                        if(winnerWind == -1) winnerWind = 0;
-                        else doublewinner = 0;
+                        if(winnerWind == -1) winnerWind = myWindval;
+                        else doublewinner = myWindval;
                         ronPressed = true;
                         updateBoardFunc();
                     }
@@ -834,19 +834,19 @@ public class Board extends AppCompatActivity {
                     break;
                 case R.id.lowerScore: case R.id.lowerWind:
                     if(ronPressed){
-                        loserWind = 1;
+                        loserWind = (myWindval + 1) % 4;
                         showDialog();
                         break;
                     }
                 case R.id.faceScore: case R.id.faceWind:
                     if(ronPressed) {
-                        loserWind = 2;
+                        loserWind = (myWindval + 2) % 4;
                         showDialog();
                         break;
                     }
                 case R.id.upperScore: case R.id.upperWind:
                     if(ronPressed){
-                        loserWind = 3;
+                        loserWind = (myWindval + 3) % 4;
                         showDialog();
                         break;
                     }
@@ -998,8 +998,8 @@ public class Board extends AppCompatActivity {
                         continue;
                     }
                     int who = findID(IDs, split[0]);
-                    int whofromme = (who - myWindval + 4) % 4;
-                    switch(whofromme){ //내 기준
+                    //int whofromme = (who - myWindval + 4) % 4;
+                    switch(who){ //변수 기준
                         case 0:
                             Log.d("match", MainActivity.ID);
                             mHandler.post(updateBoard);
@@ -1007,9 +1007,9 @@ public class Board extends AppCompatActivity {
                         case 1: case 2: case 3: //순서대로 하가대가상가
                             switch (split[1]) {
                                 case "riichi":
-                                    scores[(myWindval + whofromme) % 4] -= 1000;
-                                    change[(myWindval + whofromme) % 4] = -1000;
-                                    isRiichi[(myWindval + whofromme) % 4] = true;
+                                    scores[who] -= 1000;
+                                    change[who] = -1000;
+                                    isRiichi[who] = true;
                                     vault += 1000;
                                     if (myWindval == 0) {
                                         mHandler.post(new Runnable() {
@@ -1025,24 +1025,24 @@ public class Board extends AppCompatActivity {
                                 case "tsumo":
                                     pan = Integer.parseInt(split[2]);
                                     boo = Integer.parseInt(split[3]);
-                                    tsumoFunc(whofromme);
+                                    tsumoFunc(who);
                                     resetWind();
                                     break;
                                 case "ron":
                                     pan = Integer.parseInt(split[2]);
                                     boo = Integer.parseInt(split[3]);
                                     loserWind = Integer.parseInt(split[4]);
-                                    ronFunc(whofromme, (loserWind + whofromme) % 4);
+                                    ronFunc(who, loserWind);
                                     resetWind();
                                     break;
                                 case "doubleron":
-                                    if (loserWind == -1) loserWind = (whofromme + Integer.parseInt(split[4])) % 4;
+                                    if (loserWind == -1) loserWind = who;
                                     if (winnerWind == -1) {
-                                        winnerWind = whofromme;
+                                        winnerWind = who;
                                         pan = Integer.parseInt(split[2]);
                                         boo = Integer.parseInt(split[3]);
                                     } else {
-                                        doublewinner = whofromme;
+                                        doublewinner = who;
                                         doublepan = Integer.parseInt(split[2]);
                                         doubleboo = Integer.parseInt(split[3]);
                                         doubleronFunc(winnerWind, doublewinner, loserWind);
@@ -1050,16 +1050,16 @@ public class Board extends AppCompatActivity {
                                     }
                                     break;
                                 case "Tenpai":
-                                    isRiichi[(myWindval + whofromme) % 4] = true;
+                                    isRiichi[who] = true;
                                     waitdraws++;
                                     tenpais++;
                                     break;
                                 case "noTenpai":
-                                    isRiichi[(myWindval + whofromme) % 4] = false;
+                                    isRiichi[who] = false;
                                     waitdraws++;
                                     break;
                                 case "chonbo":
-                                    chonboFunc(whofromme);
+                                    chonboFunc(who);
                                     resetWind();
                                     break;
                             }
