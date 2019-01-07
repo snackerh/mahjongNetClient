@@ -41,22 +41,11 @@ public class Board extends AppCompatActivity {
     Button tsumo;
     Button ron;
 
-    TextView myWind; // 자신
-    TextView myLight; // 자기 리치상태
-    TextView myScore; // 자기 점수
-    TextView myChange; // 자기 변동
-    TextView lowerWind; // 하가
-    TextView lowerLight; // 하가 리치상태
-    TextView lowerScore; // 하가 점수
-    TextView lowerChange; // 하가 변동
-    TextView faceWind; // 대가
-    TextView faceLight; // 대가 리치상태
-    TextView faceScore; // 대가 점수
-    TextView faceChange; // 대가 변동
-    TextView upperWind; // 상가
-    TextView upperLight; // 상가 리치상태
-    TextView upperScore; // 상가 점수
-    TextView upperChange; // 상가 변동
+    TextView[] windText;
+    TextView[] riichiText;
+    TextView[] scoreText;
+    TextView[] changeText;
+
     TextView statusBoard; // 중앙상황판
     ImageView compare; // 좌측상단점점점
 
@@ -74,7 +63,7 @@ public class Board extends AppCompatActivity {
     boolean[] isRiichi = {false, false, false, false};
     boolean ronPressed = false;
     int vault = 0;
-    int intentWind;
+    int myWindval;
 
     //유국 전용
     boolean waitingDraw = false;
@@ -117,74 +106,77 @@ public class Board extends AppCompatActivity {
                 }
             }, 1000);
 
-            myScore = findViewById(R.id.myScore);
-            lowerScore = findViewById(R.id.lowerScore);
-            faceScore = findViewById(R.id.faceScore);
-            upperScore = findViewById(R.id.upperScore);
-            myWind = findViewById(R.id.myWind);
-            lowerWind = findViewById(R.id.lowerWind);
-            faceWind = findViewById(R.id.faceWind);
-            upperWind = findViewById(R.id.upperWind);
-            myLight = findViewById(R.id.myLight);
-            lowerLight = findViewById(R.id.lowerLight);
-            faceLight = findViewById(R.id.faceLight);
-            upperLight = findViewById(R.id.upperLight);
-            statusBoard = findViewById(R.id.middle);
-            compare = findViewById(R.id.compare);
-            myChange = findViewById(R.id.meCompare);
-            lowerChange = findViewById(R.id.lowerCompare);
-            faceChange = findViewById(R.id.faceCompare);
-            upperChange = findViewById(R.id.upperCompare);
+        Intent intent = getIntent();
+        myWindval = intent.getIntExtra("myWind", 0);
+        windText = new TextView[4];
+        windText[myWindval] = findViewById(R.id.myWind);
+        windText[(myWindval + 1) % 4] = findViewById(R.id.lowerWind);
+        windText[(myWindval + 2) % 4] = findViewById(R.id.faceWind);
+        windText[(myWindval + 3) % 4] = findViewById(R.id.upperWind);
+        riichiText = new TextView[4];
+        riichiText[myWindval] = findViewById(R.id.myLight);
+        riichiText[(myWindval + 1) % 4] = findViewById(R.id.lowerLight);
+        riichiText[(myWindval + 2) % 4] = findViewById(R.id.faceLight);
+        riichiText[(myWindval + 3) % 4] = findViewById(R.id.upperLight);
+        scoreText = new TextView[4];
+        scoreText[myWindval] = findViewById(R.id.myScore);
+        scoreText[(myWindval + 1) % 4] = findViewById(R.id.lowerScore);
+        scoreText[(myWindval + 2) % 4]= findViewById(R.id.faceScore);
+        scoreText[(myWindval + 3) % 4] = findViewById(R.id.upperScore);
+        changeText = new TextView[4];
+        changeText[myWindval] = findViewById(R.id.meCompare);
+        changeText[(myWindval + 1) % 4] = findViewById(R.id.lowerCompare);
+        changeText[(myWindval + 2) % 4] = findViewById(R.id.faceCompare);
+        changeText[(myWindval + 3) % 4] = findViewById(R.id.upperCompare);
 
-            riichi = findViewById(R.id.riichi);
-            tsumo = findViewById(R.id.tsumo);
-            ron = findViewById(R.id.ron);
-            riichi.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (riichi.isEnabled()) {
-                        if(scores[intentWind] < 1000) Toast.makeText(Board.this, "리치 불가",Toast.LENGTH_SHORT).show();
-                        else {
-                            scores[intentWind] -= 1000;
-                            change[intentWind] = -1000;
-                            vault += 1000;
-                            isRiichi[(intentWind)] = true;
+        statusBoard = findViewById(R.id.middle);
+        compare = findViewById(R.id.compare);
 
-                            riichi.setEnabled(false);
-                            if (intentWind == 0) {
-                                mHandler.post(new Runnable() {
-                                    @Override
+        riichi = findViewById(R.id.riichi);
+        tsumo = findViewById(R.id.tsumo);
+        ron = findViewById(R.id.ron);
+        riichi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (riichi.isEnabled()) {
+                    if(scores[myWindval] < 1000) Toast.makeText(Board.this, "리치 불가",Toast.LENGTH_SHORT).show();
+                    else {
+                        scores[myWindval] -= 1000;
+                        change[myWindval] = -1000;
+                        vault += 1000;
+                        isRiichi[(myWindval)] = true;
+
+                        riichi.setEnabled(false);
+                        if (myWindval == 0) {
+                            mHandler.post(new Runnable() {
+                                @Override
                                     public void run() {
                                         SendStatus send = new SendStatus(0);
                                         send.start();
                                     }
-                                });
-                            }
-                            SendAgain send = new SendAgain();
-                            send.start();
-                            //updateBoardFunc();
+                            });
                         }
+                        SendAgain send = new SendAgain();
+                        send.start();
+                        //updateBoardFunc();
                     }
                 }
-            });
-            tsumo.setOnClickListener(mClick);
-            ron.setOnClickListener(mClick);
+            }
+        });
 
-            lowerScore.setOnClickListener(mClick);
-            faceScore.setOnClickListener(mClick);
-            upperScore.setOnClickListener(mClick);
-            lowerWind.setOnClickListener(mClick);
-            faceWind.setOnClickListener(mClick);
-            upperWind.setOnClickListener(mClick);
+        tsumo.setOnClickListener(mClick);
+        ron.setOnClickListener(mClick);
+
+        for(int i = 1; i < 4; i++) {
+            scoreText[(myWindval + i) % 4].setOnClickListener(mClick);
+            windText[(myWindval + i) % 4].setOnClickListener(mClick);
+        }
 
             //compare.setOnTouchListener(mTouch);
-            compare.setOnClickListener(imageClick);
-            compare.setClickable(true);
+        compare.setOnClickListener(imageClick);
+        compare.setClickable(true);
 
-            Intent intent = getIntent();
-            intentWind = intent.getIntExtra("myWind", 0);
-
-            if(intentWind == 0) {
+            if(myWindval == 0) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -214,7 +206,7 @@ public class Board extends AppCompatActivity {
                     bld.setMessage("유국을 선택하셨습니다.\n당신은 텐파이입니까?\n(도중유국일 경우 전부 '네'를 선택하십시오.)");
                     bld.setNegativeButton("네", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichbutton) {
-                            isRiichi[intentWind] = true;
+                            isRiichi[myWindval] = true;
                             waitingDraw = true;
                             waitdraws++;
                             tenpais++;
@@ -224,7 +216,7 @@ public class Board extends AppCompatActivity {
                     });
                     bld.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichbutton) {
-                            isRiichi[intentWind] = false;
+                            isRiichi[myWindval] = false;
                             waitingDraw = true;
                             waitdraws++;
                             SendDraw send = new SendDraw();
@@ -264,7 +256,7 @@ public class Board extends AppCompatActivity {
                 }
                 break;
             case R.id.revertOnce:
-                if(!waitingDraw && intentWind == 0){
+                if(!waitingDraw && myWindval == 0){
                     AlertDialog.Builder bld = new AlertDialog.Builder(this);
                     bld.setTitle("확인");
                     bld.setMessage("정말 이전 상태로 되돌아가시겠습니까?");
@@ -287,7 +279,7 @@ public class Board extends AppCompatActivity {
                 }
                 break;
             case R.id.revertMiddle:
-                if(!waitingDraw && intentWind == 0){
+                if(!waitingDraw && myWindval == 0){
                     AlertDialog.Builder bld = new AlertDialog.Builder(this);
                     bld.setTitle("확인");
                     bld.setMessage("정말 이번 국의 처음으로 되돌아가시겠습니까?");
@@ -310,7 +302,7 @@ public class Board extends AppCompatActivity {
                 }
                 break;
             case R.id.revertFar:
-                if(!waitingDraw && intentWind == 0){
+                if(!waitingDraw && myWindval == 0){
                     AlertDialog.Builder bld = new AlertDialog.Builder(this);
                     bld.setTitle("확인");
                     bld.setMessage("정말 이전 국의 처음으로 되돌아가시겠습니까?");
@@ -364,134 +356,75 @@ public class Board extends AppCompatActivity {
     public Runnable updateBoard = new Runnable() { // 모든 작업이 끝난후 업데이트할것
         @Override
         public void run() {
-            lowerScore.setTextSize(36);
-            faceScore.setTextSize(36);
-            upperScore.setTextSize(36);
-            myScore.setTextSize(36);
+            for(int i = 0; i < 4; i++){
+                scoreText[i].setTextSize(36);
+            }
             updateBoardFunc();
         }
     };
 
 
     public void changeUpdate(){
-        myChange.setTextColor(Color.WHITE);
-        lowerChange.setTextColor(Color.WHITE);
-        faceChange.setTextColor(Color.WHITE);
-        upperChange.setTextColor(Color.WHITE);
-        myChange.setText(MainActivity.IDs[intentWind]);
-        lowerChange.setText(MainActivity.IDs[(intentWind + 1) % 4]);
-        faceChange.setText(MainActivity.IDs[(intentWind + 2) % 4]);
-        upperChange.setText(MainActivity.IDs[(intentWind + 3) % 4]);
+        for(int i = 0; i < 4; i++){
+            changeText[i].setTextColor(Color.WHITE);
+            changeText[i].setText(MainActivity.IDs[i]);
+        }
         Arrays.fill(change, 0);
     }
 
     public void updateBoardFunc(){
-        Log.d("upd", ""+ scores[intentWind]);
+        Log.d("upd", ""+ scores[myWindval]);
 
         switch(boardToggle){
             case 0:
-                lowerScore.setTextSize(36);
-                faceScore.setTextSize(36);
-                upperScore.setTextSize(36);
-                myScore.setTextSize(36);
-                myScore.setText("" + scores[intentWind]); //점수상태
-                lowerScore.setText("" + scores[(intentWind + 1) % 4]);
-                faceScore.setText("" + scores[(intentWind + 2) % 4]);
-                upperScore.setText("" + scores[(intentWind + 3) % 4]);
+                for(int i = 0; i < 4; i++){
+                    scoreText[i].setTextSize(36);
+                    scoreText[i].setText("" + scores[i]);
+                }
                 break;
             case 1:
-                myScore.setText("" + scores[intentWind]);
-                lowerScore.setText("" + (scores[intentWind] - scores[(intentWind + 1) % 4]));
-                if((scores[intentWind] - scores[(intentWind + 1) % 4]) < 0) lowerScore.setTextColor(Color.RED);
-                else if((scores[intentWind] - scores[(intentWind + 1) % 4]) > 0) lowerScore.setTextColor(Color.GREEN);
-                else { lowerScore.setTextColor(Color.WHITE); lowerScore.setText("±0");}
-                faceScore.setText(""+ (scores[intentWind] - scores[(intentWind + 2) % 4]));
-                if((scores[intentWind] - scores[(intentWind + 2) % 4]) < 0) faceScore.setTextColor(Color.RED);
-                else if((scores[intentWind] - scores[(intentWind + 2) % 4]) > 0) faceScore.setTextColor(Color.GREEN);
-                else { faceScore.setTextColor(Color.WHITE); faceScore.setText("±0");}
-                upperScore.setText(""+ (scores[intentWind] - scores[(intentWind + 3) % 4]));
-                if((scores[intentWind] - scores[(intentWind + 3) % 4]) < 0) upperScore.setTextColor(Color.RED);
-                else if((scores[intentWind] - scores[(intentWind + 3) % 4]) > 0) upperScore.setTextColor(Color.GREEN);
-                else { upperScore.setTextColor(Color.WHITE);  upperScore.setText("±0");}
+                scoreText[myWindval].setText("" + scores[myWindval]);
+
+                for(int i = 1; i < 4; i++){
+                    scoreText[(myWindval + i) % 4].setText("" + (scores[myWindval] - scores[(myWindval + i) % 4]));
+                    if((scores[myWindval] - scores[(myWindval + 1) % 4]) < 0) scoreText[(myWindval + i) % 4].setTextColor(Color.RED);
+                    else if((scores[myWindval] - scores[(myWindval + 1) % 4]) > 0) scoreText[(myWindval + i) % 4].setTextColor(Color.GREEN);
+                    else { scoreText[(myWindval + i) % 4].setTextColor(Color.WHITE); scoreText[(myWindval + i) % 4].setText("±0");}
+                }
                 break;
             case 2:
-                lowerScore.setTextColor(Color.WHITE);
-                faceScore.setTextColor(Color.WHITE);
-                upperScore.setTextColor(Color.WHITE);
-                lowerScore.setTextSize(18);
-                faceScore.setTextSize(18);
-                upperScore.setTextSize(18);
-                myScore.setTextSize(18);
-                lowerScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 1) % 4, round, extend, vault));
-                faceScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 2) % 4, round, extend, vault));
-                upperScore.setText(calc.findLeastRon(scores, intentWind, (intentWind + 3) % 4, round, extend, vault));
-                myScore.setText(calc.findLeastTsumo(scores, intentWind, round, extend, vault));
+                scoreText[myWindval].setTextSize(18);
+                scoreText[myWindval].setText(calc.findLeastTsumo(scores, myWindval, round, extend, vault));
+
+                for(int i = 1; i < 4; i++) {
+                    scoreText[(myWindval + i) % 4].setTextColor(Color.WHITE);
+                    scoreText[(myWindval + i) % 4].setTextSize(18);
+                    scoreText[(myWindval + i) % 4].setText(calc.findLeastRon(scores, myWindval, (myWindval + 1) % 4, round, extend, vault));
+                }
         }
-        myWind.setText(MainActivity.winds[(intentWind + maxroundmod - round) % 4]); //각자의 바람
-        lowerWind.setText(MainActivity.winds[(intentWind + maxroundmod + 1 - round) % 4]);
-        faceWind.setText(MainActivity.winds[(intentWind + maxroundmod + 2 - round) % 4]);
-        upperWind.setText(MainActivity.winds[(intentWind + maxroundmod + 3 - round) % 4]);
+
+        for(int i = 0; i < 4; i++) {
+            windText[(myWindval + i) % 4].setText(MainActivity.winds[(myWindval + maxroundmod + i - round) % 4]);
+        }
 
         statusBoard.setText((round <= 4 ? "동 " : round <= 8  ? "남 " : "서 ") + ((round % 4) == 0 ? 4 : (round % 4)) + "국\n" + extend + (oyaextend ? "연장" : "본장") + "\n공탁:" + vault); // 중앙판
         if(oyaextend) statusBoard.setBackgroundResource(R.color.colorAccent);
         else statusBoard.setBackgroundResource(R.color.lightBackground);
 
-        if(change[intentWind] > 0){
-            myChange.setTextColor(Color.GREEN);
-            myChange.setText("+" + change[intentWind]);
-        } else if(change[intentWind] < 0){
-            myChange.setTextColor(Color.RED);
-            myChange.setText("-" + change[intentWind]);
-        }
-        if(change[(intentWind + 1) % 4] > 0){
-            lowerChange.setTextColor(Color.GREEN);
-            lowerChange.setText("+" + change[(intentWind + 1) % 4]);
-        } else if(change[(intentWind + 1) % 4] < 0){
-            lowerChange.setTextColor(Color.RED);
-            lowerChange.setText("-" + change[(intentWind + 1) % 4]);
-        }
-        if(change[(intentWind + 2) % 4] > 0){
-            faceChange.setTextColor(Color.GREEN);
-            faceChange.setText("+" + change[(intentWind + 2) % 4]);
-        } else if(change[(intentWind + 2) % 4] < 0){
-            faceChange.setTextColor(Color.RED);
-            faceChange.setText("-" + change[(intentWind + 2) % 4]);
-        }
-        if(change[(intentWind + 3) % 4] > 0){
-            upperChange.setTextColor(Color.GREEN);
-            upperChange.setText("+" + change[(intentWind + 3) % 4]);
-        } else if(change[(intentWind + 3) % 4] < 0){
-            upperChange.setTextColor(Color.RED);
-            upperChange.setText("-" + change[(intentWind + 3) % 4]);
+        for(int i = 0; i < 4; i++){
+            if(change[(myWindval + i) % 4] > 0){
+                changeText[(myWindval + i) % 4].setTextColor(Color.GREEN);
+                changeText[(myWindval + i) % 4].setText("+" + change[(myWindval + i) % 4]);
+            } else if(change[(myWindval + i) % 4] < 0){
+                changeText[(myWindval + i) % 4].setTextColor(Color.RED);
+                changeText[(myWindval + i) % 4].setText("-" + change[(myWindval + i) % 4]);
+            }
         }
         mHandler.postDelayed(updateChange, 2000);
 
-        switch((intentWind + maxroundmod - round) % 4){ //오야가 누구야
-            case 0:
-                myWind.setBackgroundColor(Color.RED);
-                upperWind.setBackgroundColor(Color.TRANSPARENT);
-                faceWind.setBackgroundColor(Color.TRANSPARENT);
-                lowerWind.setBackgroundColor(Color.TRANSPARENT);
-                break;
-            case 1:
-                myWind.setBackgroundColor(Color.TRANSPARENT);
-                upperWind.setBackgroundColor(Color.RED);
-                faceWind.setBackgroundColor(Color.TRANSPARENT);
-                lowerWind.setBackgroundColor(Color.TRANSPARENT);
-                break;
-            case 2:
-
-                myWind.setBackgroundColor(Color.TRANSPARENT);
-                upperWind.setBackgroundColor(Color.TRANSPARENT);
-                faceWind.setBackgroundColor(Color.RED);
-                lowerWind.setBackgroundColor(Color.TRANSPARENT);
-                break;
-            case 3:
-                myWind.setBackgroundColor(Color.TRANSPARENT);
-                upperWind.setBackgroundColor(Color.TRANSPARENT);
-                faceWind.setBackgroundColor(Color.TRANSPARENT);
-                lowerWind.setBackgroundColor(Color.RED);
-                break;
+        for(int i = 0; i < 4; i++) { //오야 찾기
+            if(i == ((round - 1) % 4)) windText[i].setBackgroundColor(Color.RED);
+            else windText[i].setBackgroundColor(Color.TRANSPARENT);
         }
 
         if(waitingDraw){
@@ -500,17 +433,14 @@ public class Board extends AppCompatActivity {
             ron.setEnabled(false);
         }
         else {
-            if (isRiichi[(intentWind)]) myLight.setBackgroundResource(R.drawable.riichih); //각자의 리치봉
-            else myLight.setBackgroundColor(Color.TRANSPARENT);
-            if (isRiichi[(intentWind + 1) % 4])
-                lowerLight.setBackgroundResource(R.drawable.riichiv);
-            else lowerLight.setBackgroundColor(Color.TRANSPARENT);
-            if (isRiichi[(intentWind + 2) % 4]) faceLight.setBackgroundResource(R.drawable.riichih);
-            else faceLight.setBackgroundColor(Color.TRANSPARENT);
-            if (isRiichi[(intentWind + 3) % 4])
-                upperLight.setBackgroundResource(R.drawable.riichiv);
-            else upperLight.setBackgroundColor(Color.TRANSPARENT);
-
+            for(int i = 0; i < 4; i += 2){
+                if (isRiichi[(myWindval + i) % 4]) riichiText[(myWindval + i) % 4].setBackgroundResource(R.drawable.riichih); //가로(나,대면) 리치봉
+                else riichiText[(myWindval + i) % 4].setBackgroundColor(Color.TRANSPARENT);
+            }
+            for(int i = 1; i < 4; i += 2){
+                if (isRiichi[(myWindval + i) % 4]) riichiText[(myWindval + i) % 4].setBackgroundResource(R.drawable.riichiv); //세로(상가,하가) 리치봉
+                else riichiText[(myWindval + i) % 4].setBackgroundColor(Color.TRANSPARENT);
+            }
 
             if (round == (maxround + 1) || (round == maxround && isTop(scores) && extend >= 1) || isTobi(scores)) {
                 if(vault != 0){
@@ -549,7 +479,7 @@ public class Board extends AppCompatActivity {
                 ron.setText("론");
                 ron.setEnabled(true);
                 tsumo.setEnabled(true);
-                if (!isRiichi[(intentWind)]) riichi.setEnabled(true);
+                if (!isRiichi[(myWindval)]) riichi.setEnabled(true);
             }
         }
 
@@ -589,14 +519,10 @@ public class Board extends AppCompatActivity {
         round = Integer.parseInt(st[0]);
         extend = Integer.parseInt(st[1]);
         oyaextend = Boolean.parseBoolean(st[2]);
-        scores[0] = Integer.parseInt(st[3]);
-        scores[1] = Integer.parseInt(st[4]);
-        scores[2] = Integer.parseInt(st[5]);
-        scores[3] = Integer.parseInt(st[6]);
-        isRiichi[0] = Boolean.parseBoolean(st[7]);
-        isRiichi[1] = Boolean.parseBoolean(st[8]);
-        isRiichi[2] = Boolean.parseBoolean(st[9]);
-        isRiichi[3] = Boolean.parseBoolean(st[10]);
+        for(int i = 0; i < 4; i++){
+            scores[i] = Integer.parseInt(st[3 + i]);
+            isRiichi[i] = Boolean.parseBoolean(st[7 + i]);
+        }
         vault = Integer.parseInt(st[11]);
         for(int i = 0; i < 12; i++) {
             Log.d("st", st[i]);
@@ -619,17 +545,18 @@ public class Board extends AppCompatActivity {
         doubleboo = -1;
     }
 
-    public void tsumoFunc(int winner){ //winner = 자신 기준 상대하가
-        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 친이 쯔모
-            oyajackpot = calc.oyaTsumo(pan, boo);
-            scores[((winner + intentWind) % 4)] += ((3 * oyajackpot) + (300 * extend) + vault);
-            change[((winner + intentWind) % 4)] = ((3 * oyajackpot) + (300 * extend) + vault);
-            scores[((winner + intentWind + 1) % 4)] -= oyajackpot + (100 * extend);
-            change[((winner + intentWind + 1) % 4)] = -(oyajackpot + (100 * extend));
-            scores[((winner + intentWind + 2) % 4)] -= oyajackpot + (100 * extend);
-            change[((winner + intentWind + 2) % 4)] = -(oyajackpot + (100 * extend));
-            scores[((winner + intentWind + 3) % 4)] -= oyajackpot + (100 * extend);
-            change[((winner + intentWind + 2) % 4)] = -(oyajackpot + (100 * extend));
+    public void changeScore(int pos, int val) {
+        scores[pos] += val;
+        change[pos] += val;
+    }
+
+    public void tsumoFunc(int winner){ //winner = 변수기준
+        if(((winner + maxroundmod - round) % 4) == 0){ // 친이 쯔모
+            oyajackpot = calc.oyaTsumo(pan, boo) + (100 * extend);
+            changeScore(winner, ((3 * oyajackpot) + vault));
+            for(int i = 1; i < 4; i++){
+                changeScore(((winner + i) % 4), -oyajackpot);
+            }
             extend++;
             oyaextend = stillOyaExtend();
             Arrays.fill(isRiichi,false);
@@ -637,42 +564,20 @@ public class Board extends AppCompatActivity {
             oyajackpot = 0;
         }
         else{
-            oyajackpot = calc.oyaTsumo(pan, boo);
-            jackpot = calc.childTsumo(pan, boo);
+            oyajackpot = calc.oyaTsumo(pan, boo) + (100 * extend);
+            jackpot = calc.childTsumo(pan, boo) + (100 * extend);
             Log.d("pan", "" + pan);
             Log.d("boo", "" + boo);
             Log.d("oyajackpot", ""+ oyajackpot);
             Log.d("jackpot", ""+ jackpot);
-            if(((winner + intentWind + maxroundmod - round) % 4) == 1){ // 남가 쯔모
-                scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                scores[((winner + intentWind + 1) % 4)] -= jackpot + (100 * extend); //서가
-                change[((winner + intentWind + 1) % 4)] = -(jackpot + (100 * extend));
-                scores[((winner + intentWind + 2) % 4)] -= jackpot + (100 * extend); //북가
-                change[((winner + intentWind + 2) % 4)] = -(jackpot + (100 * extend));
-                scores[((winner + intentWind + 3) % 4)] -= oyajackpot + (100 * extend); //오야
-                change[((winner + intentWind + 3) % 4)] = -(oyajackpot + (100 * extend));
+
+            changeScore((winner % 4), (oyajackpot + (2 * jackpot) + vault));
+
+            for(int i = 1; i < 4; i++){
+                if((winner + i + maxroundmod - round) % 4 == 0){ changeScore((winner + i) % 4, -oyajackpot); }
+                else changeScore((winner + i) % 4, -jackpot);
             }
-            if(((winner + intentWind + maxroundmod - round) % 4) == 2){ // 서가 쯔모
-                scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                scores[((winner + intentWind + 1) % 4)] -= jackpot + (100 * extend); //북가
-                change[((winner + intentWind + 1) % 4)] = -(jackpot + (100 * extend));
-                scores[((winner + intentWind + 2) % 4)] -= oyajackpot + (100 * extend); //오야
-                change[((winner + intentWind + 2) % 4)] = -(oyajackpot + (100 * extend));
-                scores[((winner + intentWind + 3) % 4)] -= jackpot + (100 * extend); //남가
-                change[((winner + intentWind + 3) % 4)] = -(jackpot + (100 * extend));
-            }
-            if(((winner + intentWind + maxroundmod - round) % 4) == 3){ // 북가 쯔모
-                scores[((winner + intentWind) % 4)] += (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                change[((winner + intentWind) % 4)] = (oyajackpot + (2 * jackpot) + (300 * extend) + vault);
-                scores[((winner + intentWind + 1) % 4)] -= oyajackpot + (100 * extend); //오야
-                change[((winner + intentWind + 1) % 4)] = -(oyajackpot + (100 * extend));
-                scores[((winner + intentWind + 2) % 4)] -= jackpot + (100 * extend); //남가
-                change[((winner + intentWind + 2) % 4)] = -(jackpot + (100 * extend));
-                scores[((winner + intentWind + 3) % 4)] -= jackpot + (100 * extend); //서가
-                change[((winner + intentWind + 3) % 4)] = -(jackpot + (100 * extend));
-            }
+
             round++;
             extend = 0;
             oyaextend = false;
@@ -681,7 +586,7 @@ public class Board extends AppCompatActivity {
             oyajackpot = 0;
             jackpot = 0;
         }
-        if(intentWind == 0) {
+        if(myWindval == 0) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -693,12 +598,10 @@ public class Board extends AppCompatActivity {
     }
 
     public void ronFunc(int winner, int loser){
-        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 친이 론
-            oyajackpot = calc.oyaRon(pan, boo);
-            scores[(winner + intentWind) % 4] += (oyajackpot + (300 * extend) + vault);
-            change[(winner + intentWind) % 4] = (oyajackpot + (300 * extend) + vault);
-            scores[(loser + intentWind) % 4] -= oyajackpot + (300 * extend);
-            change[(loser + intentWind) % 4] = -(oyajackpot + (300 * extend));
+        if(((winner + maxroundmod - round) % 4) == 0){ // 친이 론
+            oyajackpot = calc.oyaRon(pan, boo) + (300 * extend);
+            changeScore(winner, oyajackpot + vault);
+            changeScore(loser, -oyajackpot);
             extend++;
             oyaextend = stillOyaExtend();
             vault = 0;
@@ -706,11 +609,9 @@ public class Board extends AppCompatActivity {
             Arrays.fill(isRiichi,false);
         }
         else{
-            jackpot = calc.childRon(pan, boo);
-            scores[(winner + intentWind) % 4] += (jackpot + (300 * extend) + vault);
-            change[(winner + intentWind) % 4] = (jackpot + (300 * extend) + vault);
-            scores[(loser + intentWind) % 4] -= jackpot + (300 * extend);
-            change[(loser + intentWind) % 4] = -(jackpot + (300 * extend));
+            jackpot = calc.childRon(pan, boo) + (300 * extend);
+            changeScore(winner, jackpot + vault);
+            changeScore(loser, -jackpot);
             round++;
             extend = 0;
             oyaextend = false;
@@ -718,7 +619,7 @@ public class Board extends AppCompatActivity {
             jackpot = 0;
             Arrays.fill(isRiichi,false);
         }
-        if(intentWind == 0) {
+        if(myWindval == 0) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -731,47 +632,47 @@ public class Board extends AppCompatActivity {
 
     public void doubleronFunc(int winner, int secondwinner, int loser){
         boolean didOya = false;
-        change[(loser + intentWind) % 4] = 0;
-        if(((winner + intentWind + maxroundmod - round) % 4) == 0){ // 첫번째, 친이 론
+        change[(loser + myWindval) % 4] = 0;
+        if(((winner + myWindval + maxroundmod - round) % 4) == 0){ // 첫번째, 친이 론
             oyajackpot = calc.oyaRon(pan, boo);
-            scores[(winner + intentWind) % 4] += (oyajackpot + (300 * extend));
-            change[(winner + intentWind) % 4] = (oyajackpot + (300 * extend));
-            scores[(loser + intentWind) % 4] -= oyajackpot + (300 * extend);
-            change[(loser + intentWind) % 4] -= (oyajackpot + (300 * extend));
+            scores[(winner + myWindval) % 4] += (oyajackpot + (300 * extend));
+            change[(winner + myWindval) % 4] = (oyajackpot + (300 * extend));
+            scores[(loser + myWindval) % 4] -= oyajackpot + (300 * extend);
+            change[(loser + myWindval) % 4] -= (oyajackpot + (300 * extend));
             didOya = true;
         }
         else{
             jackpot = calc.childRon(pan, boo);
-            scores[(winner + intentWind) % 4] += (jackpot + (300 * extend));
-            change[(winner + intentWind) % 4] = (jackpot + (300 * extend));
-            scores[(loser + intentWind) % 4] -= jackpot + (300 * extend);
-            change[(loser + intentWind) % 4] -= (jackpot + (300 * extend));
+            scores[(winner + myWindval) % 4] += (jackpot + (300 * extend));
+            change[(winner + myWindval) % 4] = (jackpot + (300 * extend));
+            scores[(loser + myWindval) % 4] -= jackpot + (300 * extend);
+            change[(loser + myWindval) % 4] -= (jackpot + (300 * extend));
         }
 
-        if(((secondwinner + intentWind + maxroundmod - round) % 4) == 0){ // 두번째, 친이 론
+        if(((secondwinner + myWindval + maxroundmod - round) % 4) == 0){ // 두번째, 친이 론
             oyajackpot = calc.oyaRon(doublepan, doubleboo);
-            scores[(secondwinner + intentWind) % 4] += (oyajackpot + (300 * extend));
-            change[(secondwinner + intentWind) % 4] = (oyajackpot + (300 * extend));
-            scores[(loser + intentWind) % 4] -= oyajackpot + (300 * extend);
-            change[(loser + intentWind) % 4] -= (oyajackpot + (300 * extend));
+            scores[(secondwinner + myWindval) % 4] += (oyajackpot + (300 * extend));
+            change[(secondwinner + myWindval) % 4] = (oyajackpot + (300 * extend));
+            scores[(loser + myWindval) % 4] -= oyajackpot + (300 * extend);
+            change[(loser + myWindval) % 4] -= (oyajackpot + (300 * extend));
             didOya = true;
         }
         else{
             jackpot = calc.childRon(doublepan, doubleboo);
-            scores[(secondwinner + intentWind) % 4] += (jackpot + (300 * extend));
-            change[(secondwinner + intentWind) % 4] = (jackpot + (300 * extend));
-            scores[(loser + intentWind) % 4] -= jackpot + (300 * extend);
-            change[(loser + intentWind) % 4] -= (jackpot + (300 * extend));
+            scores[(secondwinner + myWindval) % 4] += (jackpot + (300 * extend));
+            change[(secondwinner + myWindval) % 4] = (jackpot + (300 * extend));
+            scores[(loser + myWindval) % 4] -= jackpot + (300 * extend);
+            change[(loser + myWindval) % 4] -= (jackpot + (300 * extend));
         }
 
         //누가 공탁금을 가져가지?
         if(((winner + 4 - loser) % 4) < ((secondwinner + 4 - loser) % 4)){ //방총자기준 선하네
-            scores[(winner + intentWind) % 4] += vault;
-            change[(winner + intentWind) % 4] += vault;
+            scores[(winner + myWindval) % 4] += vault;
+            change[(winner + myWindval) % 4] += vault;
         }
         else{
-            scores[(secondwinner + intentWind) % 4] += vault;
-            change[(secondwinner + intentWind) % 4] += vault;
+            scores[(secondwinner + myWindval) % 4] += vault;
+            change[(secondwinner + myWindval) % 4] += vault;
         }
         vault = 0;
 
@@ -788,7 +689,7 @@ public class Board extends AppCompatActivity {
             Arrays.fill(isRiichi,false);
         }
 
-        if(intentWind == 0) {
+        if(myWindval == 0) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -808,40 +709,22 @@ public class Board extends AppCompatActivity {
                 break;
             case 1:
                 for(int i = 0; i < 4; i++){
-                    if(isRiichi[i]) {
-                        scores[i] += 3000;
-                        change[i] = 3000;
-                    }
-                    else {
-                        scores[i] -= 1000;
-                        change[i] = -1000;
-                    }
+                    if(isRiichi[i]) { changeScore(i, 3000); }
+                    else { changeScore(i, -1000); }
                 }
                 if(!isRiichi[(round - 1) % 4]) round++;
                 break;
             case 2:
                 for(int i = 0; i < 4; i++){
-                    if(isRiichi[i]) {
-                        scores[i] += 1500;
-                        change[i] = 1500;
-                    }
-                    else {
-                        scores[i] -= 1500;
-                        change[i] = -1500;
-                    }
+                    if(isRiichi[i]) { changeScore(i, 1500);}
+                    else { changeScore(i, -1500); }
                 }
                 if(!isRiichi[(round - 1) % 4]) round++;
                 break;
             case 3:
                 for(int i = 0; i < 4; i++){
-                    if(isRiichi[i]) {
-                        scores[i] += 1000;
-                        change[i] = 1000;
-                    }
-                    else {
-                        scores[i] -= 3000;
-                        change[i] = -3000;
-                    }
+                    if(isRiichi[i]) { changeScore(i, 1000); }
+                    else { changeScore(i, -3000); }
                 }
                 if(!isRiichi[(round - 1) % 4]) round++;
                 break;
@@ -855,7 +738,7 @@ public class Board extends AppCompatActivity {
         tenpais = 0;
         waitingDraw = false;
 
-        if(intentWind == 0) {
+        if(myWindval == 0) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -866,40 +749,34 @@ public class Board extends AppCompatActivity {
         }
     }
 
-    public void chonboFunc(int player){ // 자신 기준 위치
-        if((player + intentWind + maxroundmod - round) % 4 == 0){
-            scores[(player + intentWind) % 4] -= 12000;
-            change[(player + intentWind) % 4] = -12000;
+    public void chonboFunc(int player){ // 변수 기준 위치
+        if((player + maxroundmod - round) % 4 == 0){
+            changeScore(player, -12000);
             for(int i = 1; i < 4; i++) {
-                scores[(player + intentWind + i) % 4] += 4000;
-                change[(player + intentWind + i) % 4] = 4000;
+                changeScore((player + i) % 4, 4000);
             }
         }
         else{
-            scores[(player + intentWind) % 4] -= 8000;
-            change[(player + intentWind) % 4] = -8000;
+            changeScore(player, -8000);
             for(int i = 1; i < 4; i++) {
-                if((player + intentWind + i + maxroundmod - round) % 4 == 0) {
-                    scores[(player + intentWind + i) % 4] += 4000;
-                    change[(player + intentWind + i) % 4] = 4000;
+                if((player + i + maxroundmod - round) % 4 == 0) {
+                    changeScore((player + i) % 4, 4000);
                 }
                 else {
-                    scores[(player + intentWind + i) % 4] += 2000;
-                    change[(player + intentWind + i) % 4] = 2000;
+                    changeScore((player + i) % 4, 2000);
                 }
             }
         }
 
         for(int i = 0; i < 4; i++){
             if(isRiichi[i]) {
-                scores[i] += 1000;
-                change[i] += 1000;
+                changeScore(i, 1000);
                 vault -= 1000;
             }
         }
         Arrays.fill(isRiichi, false);
 
-        if(intentWind == 0) {
+        if(myWindval == 0) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -937,14 +814,14 @@ public class Board extends AppCompatActivity {
         public void onClick(View view) {
             switch(view.getId()){
                 case R.id.tsumo:
-                    winnerWind = 0;
-                    loserWind = 0;
+                    winnerWind = myWindval;
+                    loserWind = myWindval;
                     showDialog();
                     break;
                 case R.id.ron:
                     if(!ronPressed) {
-                        if(winnerWind == -1) winnerWind = 0;
-                        else doublewinner = 0;
+                        if(winnerWind == -1) winnerWind = myWindval;
+                        else doublewinner = myWindval;
                         ronPressed = true;
                         updateBoardFunc();
                     }
@@ -957,19 +834,19 @@ public class Board extends AppCompatActivity {
                     break;
                 case R.id.lowerScore: case R.id.lowerWind:
                     if(ronPressed){
-                        loserWind = 1;
+                        loserWind = (myWindval + 1) % 4;
                         showDialog();
                         break;
                     }
                 case R.id.faceScore: case R.id.faceWind:
                     if(ronPressed) {
-                        loserWind = 2;
+                        loserWind = (myWindval + 2) % 4;
                         showDialog();
                         break;
                     }
                 case R.id.upperScore: case R.id.upperWind:
                     if(ronPressed){
-                        loserWind = 3;
+                        loserWind = (myWindval + 3) % 4;
                         showDialog();
                         break;
                     }
@@ -1121,8 +998,8 @@ public class Board extends AppCompatActivity {
                         continue;
                     }
                     int who = findID(IDs, split[0]);
-                    int whofromme = (who - intentWind + 4) % 4;
-                    switch(whofromme){ //내 기준
+                    //int whofromme = (who - myWindval + 4) % 4;
+                    switch(who){ //변수 기준
                         case 0:
                             Log.d("match", MainActivity.ID);
                             mHandler.post(updateBoard);
@@ -1130,11 +1007,11 @@ public class Board extends AppCompatActivity {
                         case 1: case 2: case 3: //순서대로 하가대가상가
                             switch (split[1]) {
                                 case "riichi":
-                                    scores[(intentWind + whofromme) % 4] -= 1000;
-                                    change[(intentWind + whofromme) % 4] = -1000;
-                                    isRiichi[(intentWind + whofromme) % 4] = true;
+                                    scores[who] -= 1000;
+                                    change[who] = -1000;
+                                    isRiichi[who] = true;
                                     vault += 1000;
-                                    if (intentWind == 0) {
+                                    if (myWindval == 0) {
                                         mHandler.post(new Runnable() {
                                             @Override
                                             public void run() {
@@ -1148,24 +1025,24 @@ public class Board extends AppCompatActivity {
                                 case "tsumo":
                                     pan = Integer.parseInt(split[2]);
                                     boo = Integer.parseInt(split[3]);
-                                    tsumoFunc(whofromme);
+                                    tsumoFunc(who);
                                     resetWind();
                                     break;
                                 case "ron":
                                     pan = Integer.parseInt(split[2]);
                                     boo = Integer.parseInt(split[3]);
                                     loserWind = Integer.parseInt(split[4]);
-                                    ronFunc(whofromme, (loserWind + whofromme) % 4);
+                                    ronFunc(who, loserWind);
                                     resetWind();
                                     break;
                                 case "doubleron":
-                                    if (loserWind == -1) loserWind = (whofromme + Integer.parseInt(split[4])) % 4;
+                                    if (loserWind == -1) loserWind = who;
                                     if (winnerWind == -1) {
-                                        winnerWind = whofromme;
+                                        winnerWind = who;
                                         pan = Integer.parseInt(split[2]);
                                         boo = Integer.parseInt(split[3]);
                                     } else {
-                                        doublewinner = whofromme;
+                                        doublewinner = who;
                                         doublepan = Integer.parseInt(split[2]);
                                         doubleboo = Integer.parseInt(split[3]);
                                         doubleronFunc(winnerWind, doublewinner, loserWind);
@@ -1173,16 +1050,16 @@ public class Board extends AppCompatActivity {
                                     }
                                     break;
                                 case "Tenpai":
-                                    isRiichi[(intentWind + whofromme) % 4] = true;
+                                    isRiichi[who] = true;
                                     waitdraws++;
                                     tenpais++;
                                     break;
                                 case "noTenpai":
-                                    isRiichi[(intentWind + whofromme) % 4] = false;
+                                    isRiichi[who] = false;
                                     waitdraws++;
                                     break;
                                 case "chonbo":
-                                    chonboFunc(whofromme);
+                                    chonboFunc(who);
                                     resetWind();
                                     break;
                             }
@@ -1264,7 +1141,7 @@ public class Board extends AppCompatActivity {
         @Override
         public void run(){
             try{
-                if(!isRiichi[intentWind]) out.println("noTenpai");
+                if(!isRiichi[myWindval]) out.println("noTenpai");
                 else out.println("Tenpai");
             } catch (Exception e){
                 e.printStackTrace();
