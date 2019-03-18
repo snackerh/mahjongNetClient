@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "546051929916",
-    "firebase_url": "https://mahjonnetclient.firebaseio.com",
-    "project_id": "mahjonnetclient",
-    "storage_bucket": "mahjonnetclient.appspot.com"
+    "project_number": "568256595293",
+    "firebase_url": "https://mahjongnetclient.firebaseio.com",
+    "project_id": "mahjongnetclient",
+    "storage_bucket": "mahjongnetclient.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:546051929916:android:e0ad411eabbd259d",
+        "mobilesdk_app_id": "1:568256595293:android:91416ba81d007d35",
         "android_client_info": {
-          "package_name": "snacker.mahjongNetClient"
+          "package_name": "snacker.mahjongNetScore"
         }
       },
       "oauth_client": [
         {
-          "client_id": "546051929916-5qk78ckc9vacnstesi123bdha75ko23c.apps.googleusercontent.com",
+          "client_id": "568256595293-63nnftu6uqq9n6b24lantl3eq6vigan9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDFTTzhFS2MaM02eIN5Cc_KzctLwg4Kwrc"
+          "current_key": "AIzaSyDlyXsGcKRPPRNb0rDo9OPk9cVLnaJpdcI"
         }
       ],
       "services": {
